@@ -2,7 +2,10 @@
 
 import os
 import yt_dlp
-from pydub import AudioSegment
+try:
+    from pydub import AudioSegment
+except ModuleNotFoundError:
+    AudioSegment = None
 
 DOWNLOAD_DIR = "downloads"
 
@@ -65,14 +68,17 @@ def download_youtube_audio(url):
 
 def convert_to_wav(path):
 
+    if AudioSegment is None:
+        raise RuntimeError(
+            "Audio conversion unavailable on deployment. Upload WAV files or use YouTube URL."
+        )
+
     output = (
         os.path.splitext(path)[0]
         + "_converted.wav"
     )
 
-    audio = AudioSegment.from_file(
-        path
-    )
+    audio = AudioSegment.from_file(path)
 
     audio = (
         audio
@@ -92,6 +98,10 @@ def chunk_audio(
     wav,
     minutes=DEFAULT_CHUNK_MINUTES
 ):
+    if AudioSegment is None:
+     raise RuntimeError(
+        "Audio processing unavailable in cloud deployment."
+     )
 
     audio = AudioSegment.from_wav(
         wav
