@@ -30,34 +30,46 @@ def download_youtube_audio(url):
     )
 
     ydl_opts = {
+    "format": "bestaudio/best",
 
-        "format": "bestaudio",
+    "outtmpl": output,
 
-        "outtmpl": output,
+    "quiet": True,
 
-        "postprocessors": [
+    "nocheckcertificate": True,
 
-            {
-                "key":
-                "FFmpegExtractAudio",
+    "extract_flat": False,
 
-                "preferredcodec":
-                "wav",
-            }
+    "http_headers": {
+        "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    },
 
-        ],
-    }
+    "postprocessors": [
+        {
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "wav",
+        }
+    ],
+}
 
     with yt_dlp.YoutubeDL(
         ydl_opts
     ) as ydl:
 
         info = ydl.extract_info(
-            url,
-            download=True
-        )
+        url,
+       download=False
+   )
 
-        file = ydl.prepare_filename(
+    video_url = info["webpage_url"]
+
+    info = ydl.extract_info(
+    video_url,
+    download=True
+)
+
+    file = ydl.prepare_filename(
             info
         )
 
