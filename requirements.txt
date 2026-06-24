@@ -16,7 +16,7 @@ huggingface-hub
 faster-whisper
 
 yt-dlp
-pydub
+pydub==0.25.1
 ffmpeg-python
 
 torch
