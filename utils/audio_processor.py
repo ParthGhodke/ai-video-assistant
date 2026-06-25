@@ -172,10 +172,17 @@ def process_input(source):
 
     else:
 
-        wav = convert_to_wav(
-            source
-        )
+     temp = os.path.join(
+        DOWNLOAD_DIR,
+        source.name
+    )
 
+    with open(temp, "wb") as f:
+        f.write(source.getbuffer())
+
+    wav = convert_to_wav(temp)
+
+    wav = convert_to_wav(temp)
     print(
         "Creating chunks..."
     )

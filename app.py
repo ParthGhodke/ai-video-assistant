@@ -42,8 +42,12 @@ with st.sidebar:
     st.title("Settings & Input")
     st.markdown("Enter a video source to generate insights and enable RAG chat.")
     
-    source = st.text_input("🎥 Video URL or Path", placeholder="https://youtube.com/...")
-    language = st.selectbox("🌐 Spoken Language", ["english", "hinglish"])
+    uploaded = st.file_uploader(
+     "Upload audio/video",
+     type=["mp3","wav","mp4","m4a"]
+    )
+
+    source = uploaded
     
     st.divider()
     process_button = st.button("✨ Process Video", type="primary", use_container_width=True)
