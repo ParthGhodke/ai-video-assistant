@@ -15,6 +15,12 @@ def run_pipeline(source :str, language :str = "english") -> dict:
     chunks = process_input(source)
 
     transcript = transcribe_all(chunks,language)
+    print(transcript[:1000])
+    if not transcript or not transcript.strip():
+
+      raise RuntimeError(
+        "No transcript generated. Try a shorter or clearer audio file."
+    )
     cleanup(chunks)
     print(f"raw transcription (first 300 characters ) {transcript[:300]}")
 

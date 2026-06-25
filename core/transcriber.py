@@ -1,18 +1,24 @@
 #  transcriber.py
-
 from faster_whisper import WhisperModel
 import os
 
-WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
+WHISPER_MODEL = os.getenv(
+    "WHISPER_MODEL",
+    "base"
+)
 
 _model = None
 
 
 def load_model():
+
     global _model
 
     if _model is None:
-        print(f"Loading Faster Whisper ({WHISPER_MODEL})...")
+
+        print(
+            f"Loading {WHISPER_MODEL}"
+        )
 
         _model = WhisperModel(
             WHISPER_MODEL,
@@ -20,47 +26,71 @@ def load_model():
             compute_type="int8"
         )
 
-        print("Model loaded.")
-
     return _model
 
 
-def transcribe_chunk_whisper(chunk_path, language):
+def transcribe_chunk_whisper(
+    chunk_path,
+    language=None
+):
 
     model = load_model()
 
-    print(f"Processing: {chunk_path}")
-
     segments, info = model.transcribe(
-     chunk_path,
-     beam_size=1,
-     vad_filter=True
- )
-    text = " ".join(
-        segment.text
-        for segment in segments
+        chunk_path,
+        beam_size=3,
+        vad_filter=True,
     )
 
-    return text
+    text = []
+
+    for s in segments:
+
+        if s.text:
+
+            text.append(
+                s.text.strip()
+            )
+
+    return " ".join(text)
 
 
-def transcribe_all(chunks, language="hinglish"):
+def transcribe_all(
+    chunks,
+    language="english"
+):
 
     transcript = []
 
-    for i, chunk in enumerate(chunks):
-
-        print(
-            f"Chunk {i+1}/{len(chunks)}"
-        )
+    for chunk in chunks:
 
         try:
-            text = transcribe_chunk_whisper(chunk)
 
-            transcript.append(text)
+            result = (
+                transcribe_chunk_whisper(
+                    chunk
+                )
+            )
+
+            if result.strip():
+
+                transcript.append(
+                    result
+                )
 
         except Exception as e:
 
-            print(f"Error: {e}")
+            print(
+                f"Chunk failed: {e}"
+            )
 
-    return "\n".join(transcript)
+    final = "\n".join(
+        transcript
+    )
+
+    print(
+        "Transcript length:",
+        len(final)
+    )
+
+    return final
