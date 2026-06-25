@@ -158,38 +158,38 @@ def chunk_audio(
 
 def process_input(source):
 
-    if source.startswith("http"):
+    # Uploaded file from Streamlit
+    if hasattr(source, "name"):
 
-        print(
-            "Downloading..."
+        temp = os.path.join(
+            DOWNLOAD_DIR,
+            source.name
         )
 
-        wav = (
-            download_youtube_audio(
-                source
-            )
+        with open(temp, "wb") as f:
+            f.write(source.getbuffer())
+
+        wav = convert_to_wav(temp)
+
+    # YouTube URL
+    elif isinstance(source, str) and source.startswith("http"):
+
+        print("Downloading...")
+
+        wav = download_youtube_audio(
+            source
         )
 
+    # Local path
     else:
 
-     temp = os.path.join(
-        DOWNLOAD_DIR,
-        source.name
-    )
+        wav = convert_to_wav(
+            source
+        )
 
-    with open(temp, "wb") as f:
-        f.write(source.getbuffer())
+    print("Creating chunks...")
 
-    wav = convert_to_wav(temp)
-
-    wav = convert_to_wav(temp)
-    print(
-        "Creating chunks..."
-    )
-
-    return chunk_audio(
-        wav
-    )
+    return chunk_audio(wav)
 
 def cleanup(files):
     for file in files:
