@@ -113,51 +113,76 @@ def convert_to_wav(path):
     return output
 
 
+import subprocess
+import math
+
+
 def chunk_audio(
     wav,
     minutes=DEFAULT_CHUNK_MINUTES
 ):
 
-    audio = AudioSegment.from_wav(
-        wav
+    duration_cmd = [
+        "ffprobe",
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration",
+        "-of",
+        "default=noprint_wrappers=1:nokey=1",
+        wav,
+    ]
+
+    duration = float(
+        subprocess.check_output(
+            duration_cmd
+        )
+        .decode()
+        .strip()
     )
 
-    ms = int(
-        minutes
-        * 60
-        * 1000
+    chunk_seconds = (
+        minutes * 60
     )
 
     chunks = []
 
-    base = os.path.abspath(
-        wav
+    total = math.ceil(
+        duration / chunk_seconds
     )
 
-    for i, start in enumerate(
-        range(
-            0,
-            len(audio),
-            ms
-        )
-    ):
+    base = os.path.splitext(
+        wav
+    )[0]
+
+    for i in range(total):
+
+        start = i * chunk_seconds
 
         out = (
             f"{base}_chunk_{i}.wav"
         )
 
-        audio[
-            start:
-            start+ms
-        ].export(
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-i",
+            wav,
+            "-ss",
+            str(start),
+            "-t",
+            str(chunk_seconds),
             out,
-            format="wav"
+        ]
+
+        subprocess.run(
+            cmd,
+            check=True
         )
 
         chunks.append(out)
 
     return chunks
-
 
 def process_input(source):
 
