@@ -24,7 +24,15 @@ def build_vector_store(transcript : str)->Chroma:
         chunk_size = 500,
         chunk_overlap = 50
     )
-    chunks = splitter.split_text(transcript)
+    chunks = splitter.split_text(
+    transcript.strip()
+   )
+
+    if not chunks:
+
+     raise RuntimeError(
+        "Transcript was empty. Cannot build vector store."
+     )
 
     docs = [
         Document(page_content=chunk, metadata = {'chunk_index' : i})

@@ -33,9 +33,9 @@ def transcribe_chunk_whisper(chunk_path, language):
 
     segments, info = model.transcribe(
      chunk_path,
-     language="en" if language=="english" else "hi",
-     task="translate"
-)
+     beam_size=1,
+     vad_filter=True
+ )
     text = " ".join(
         segment.text
         for segment in segments
