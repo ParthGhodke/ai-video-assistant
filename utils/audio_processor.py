@@ -78,43 +78,39 @@ def download_youtube_audio(url):
     )[0] + ".wav"
 
 
-import shutil
+import subprocess
 
 
 def convert_to_wav(path):
 
     ext = os.path.splitext(path)[1].lower()
 
-    # Already WAV → use directly
     if ext == ".wav":
         return path
 
-    # If pydub available
-    if AudioSegment is not None:
-
-        output = (
-            os.path.splitext(path)[0]
-            + "_converted.wav"
-        )
-
-        audio = AudioSegment.from_file(path)
-
-        audio = (
-            audio
-            .set_channels(1)
-            .set_frame_rate(16000)
-        )
-
-        audio.export(
-            output,
-            format="wav"
-        )
-
-        return output
-
-    raise RuntimeError(
-        "Cloud deployment currently supports WAV uploads only. Upload a .wav file."
+    output = (
+        os.path.splitext(path)[0]
+        + "_converted.wav"
     )
+
+    cmd = [
+        "ffmpeg",
+        "-y",
+        "-i",
+        path,
+        "-ac",
+        "1",
+        "-ar",
+        "16000",
+        output,
+    ]
+
+    subprocess.run(
+        cmd,
+        check=True
+    )
+
+    return output
 
 
 def chunk_audio(
